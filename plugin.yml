@@ -1,0 +1,5 @@
+name: DirectExp
+description: Configure experience drops and give experience directly to players.
+author: LartTyler/Daybreak Studios
+version: 1.1
+main: me.dbstudios.directexp.DirectExp

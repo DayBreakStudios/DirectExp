@@ -1,0 +1,26 @@
+config:
+    gain-message: "{dark_green}[DirectExp] {aqua}You have gained {gold}{exp} {aqua}experience for killing {dark_red}{target}{aqua}."
+    cancel-other-exp-drops: true
+    BLAZE: 10
+    CAVE_SPIDER: 5
+    CHICKEN: 1
+    COW: 1
+    CREEPER: 5
+    ENDER_DRAGON: 20000
+    ENDERMAN: 5
+    GHAST: 5
+    GIANT: 5
+    MAGMA_CUBE: 5
+    MUSHROOM_COW: 1
+    PIG: 1
+    PIG_ZOMBIE: 3
+    SHEEP: 1
+    SILVERFISH: 5
+    SKELETON: 5
+    SLIME: 5
+    SNOWMAN: 0
+    SPIDER: 5
+    SQUID: 1
+    VILLAGER: 0
+    WOLF: 3
+    ZOMBIE: 5
