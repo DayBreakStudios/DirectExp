@@ -13,6 +13,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 public class DEEntityListener implements Listener {
 	private Hashtable<LivingEntity, Player> killList = new Hashtable<LivingEntity, Player>();
+	private Hashtable<LivingEntity, Hashtable<Player, Integer>> damageTable = new Hashtable<LivingEntity, Hashtable<Player, Integer>>();
 	private ArrayList<String> deathTracker = new ArrayList<String>();
 	private DirectExp common;
 	
@@ -25,6 +26,21 @@ public class DEEntityListener implements Listener {
 		if (ev.getEntity() instanceof LivingEntity && ev.getDamager() instanceof Player) {			
 			LivingEntity damaged = (LivingEntity)ev.getEntity();
 			Player damager = (Player)ev.getDamager();
+			
+			if (damageTable.containsKey(damaged)) {
+				Hashtable<Player, Integer> thisDamageTable = damageTable.get(damaged);
+				
+				if (thisDamageTable.containsKey(damager)) {
+					thisDamageTable.put(damager, thisDamageTable.get(damager) + ev.getDamage());
+				} else {
+					thisDamageTable.put(damager, ev.getDamage());
+				}
+			} else {
+				Hashtable<Player, Integer> thisDamageTable = new Hashtable<Player, Integer>();
+				
+				thisDamageTable.put(damager, ev.getDamage());				
+				damageTable.put(damaged, thisDamageTable);
+			}
 
 			if (damaged.getHealth() - ev.getDamage() < 1) {
 				killList.put(damaged, damager);
@@ -47,18 +63,27 @@ public class DEEntityListener implements Listener {
 		} else {
 			if (ev.getEntity() instanceof LivingEntity && killList.containsKey((LivingEntity)ev.getEntity())) {
 				int dropped = common.getDrop(ev.getEntity(), ev.getDroppedExp());
-			
-				Player killer = killList.get((LivingEntity)ev.getEntity());
+				Hashtable<Player, Integer> thisDamageTable = damageTable.get((LivingEntity)ev.getEntity());
+				int totalHealth = 0;
 				
-				killer.giveExp(dropped);
-			
-				if (common.getMainConfig().getString("config.gain-message", null) != null) {
-					killer.sendMessage(common.parse(common.getMainConfig().getString("config.gain-message"), dropped, common.getTargetName(ev.getEntity())));
+				for (Player key : thisDamageTable.keySet())
+					totalHealth += thisDamageTable.get(key);
+				
+				for (Player killer : thisDamageTable.keySet()) {
+					int dmg = thisDamageTable.get(killer);
+					int toGive = (int)(dropped * ((double)dmg / (double)totalHealth));
+					
+					killer.giveExp(toGive);
+					
+					if (common.getMainConfig().getString("config.gain-message", null) != null) {
+						killer.sendMessage(common.parse(common.getMainConfig().getString("config.gain-message"), dropped, dmg, common.getTargetName(ev.getEntity())));
+					}
 				}
 			
 				ev.setDroppedExp(0);
 			
 				killList.remove((LivingEntity)ev.getEntity());
+				damageTable.remove((LivingEntity)ev.getEntity());
 			}
 			
 			deathTracker.remove(ev.getEntity().getUniqueId().toString());

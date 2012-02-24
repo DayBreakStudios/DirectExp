@@ -1,5 +1,5 @@
 config:
-    gain-message: "{dark_green}[DirectExp] {aqua}You have gained {gold}{exp} {aqua}experience for killing {dark_red}{target}{aqua}."
+    gain-message: "{dark_green}[DirectExp] {aqua}You have gained {gold}{exp} {aqua}experience for dealing {dark_red}{dmg} {aqua}damage to {yellow}{target}{aqua}."
     cancel-other-exp-drops: true
     BLAZE: 10
     CAVE_SPIDER: 5

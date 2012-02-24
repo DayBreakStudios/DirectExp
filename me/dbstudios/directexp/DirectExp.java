@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -117,70 +118,38 @@ public class DirectExp extends JavaPlugin {
 	}
 	
 	public String getTargetName(Entity e) {
-		String targetName;
+		String targetName = null;
 		
 		if (e instanceof Player) {
 			targetName = ((Player)e).getDisplayName();
 		} else if (e instanceof Creature) {
 			Creature c = (Creature)e;
 			
-			if (CreatureType.BLAZE.getEntityClass().isInstance(c)) {
-				 targetName = "a blaze";
-			} else if (CreatureType.CAVE_SPIDER.getEntityClass().isInstance(c)) {
-				targetName = "a cave Spider";
-			} else if (CreatureType.CHICKEN.getEntityClass().isInstance(c)) {
-				targetName = "a chicken";
-			} else if (CreatureType.COW.getEntityClass().isInstance(c)) {
-				targetName = "a cow";
-			} else if (CreatureType.CREEPER.getEntityClass().isInstance(c)) {
-				targetName = "a creeper";
-			} else if (CreatureType.ENDER_DRAGON.getEntityClass().isInstance(c)) {
-				targetName = "an Ender Dragon";
-			} else if (CreatureType.ENDERMAN.getEntityClass().isInstance(c)) {
-				targetName = "an enderman";
-			} else if (CreatureType.GHAST.getEntityClass().isInstance(c)) {
-				targetName = "a Ghast";
-			} else if (CreatureType.GIANT.getEntityClass().isInstance(c)) {
-				targetName = "a Giant";
-			} else if (CreatureType.MAGMA_CUBE.getEntityClass().isInstance(c)) {
-				targetName = "a Magma Cube";
-			} else if (CreatureType.MUSHROOM_COW.getEntityClass().isInstance(c)) {
-				targetName = "a mooshroom";
-			} else if (CreatureType.PIG.getEntityClass().isInstance(c)) {
-				targetName = "a pig";
-			} else if (CreatureType.PIG_ZOMBIE.getEntityClass().isInstance(c)) {
-				targetName = "a pig-zombie";
-			} else if (CreatureType.SHEEP.getEntityClass().isInstance(c)) {
-				targetName = "a sheep";
-			} else if (CreatureType.SILVERFISH.getEntityClass().isInstance(c)) {
-				targetName = "a silverfish";
-			} else if (CreatureType.SKELETON.getEntityClass().isInstance(c)) {
-				targetName = "a skeleton";
-			} else if (CreatureType.SNOWMAN.getEntityClass().isInstance(c)) {
-				targetName = "a snowman";
-			} else if (CreatureType.SPIDER.getEntityClass().isInstance(c)) {
-				targetName = "a spider";
-			} else if (CreatureType.SQUID.getEntityClass().isInstance(c)) {
-				targetName = "a squid";
-			} else if (CreatureType.WOLF.getEntityClass().isInstance(c)) {
-				targetName = "a wolf";
-			} else if (CreatureType.ZOMBIE.getEntityClass().isInstance(c)) {
-				targetName = "a zombie";
-			} else {
-				targetName = "your target";
+			for (CreatureType type : CreatureType.values()) {
+				if (type.getEntityClass().isInstance(c)) {
+					if (Pattern.compile("(?i)^[aeiou].*?").matcher(type.name()).find()) {	
+						targetName = "an ";
+					} else {
+						targetName = "a ";	
+					}
+					
+					targetName += type.name().toLowerCase();
+				}
 			}
-		} else {
-			targetName = "your target";
 		}
+		
+		if (targetName == null)
+			targetName = "your target";
 		
 		return targetName;
 	}
 	
-	public String parse(String msg, int exp, String killedName) {
+	public String parse(String msg, int exp, int dmg, String killedName) {
 		String parsed = msg;
 		
 		parsed = parsed.replaceAll("(?i)\\{exp\\}", String.valueOf(exp));
 		parsed = parsed.replaceAll("(?i)\\{target\\}", killedName);
+		parsed = parsed.replaceAll("(?i)\\{dmg\\}", String.valueOf(dmg));
 		
 		for (ChatColor c : ChatColor.values())
 			parsed = parsed.replaceAll("(?i)\\{" + c.name() + "\\}", c.toString());
